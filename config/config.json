@@ -1,0 +1,25 @@
+{
+  "development": {
+    "username": "akash1",
+    "password": "12345",
+    "database": "hiring",
+    "host": "localhost",
+    "dialect": "mysql"
+   
+  },
+  "test": {
+    "username": "akash1",
+    "password": "12345",
+    "database": "hiring",
+    "host": "localhost",
+    "dialect": "mysql"
+    
+  },
+  "production": {
+    "username": "akash1",
+    "password": "12345",
+    "database": "hiring",
+    "host": "localhost",
+    "dialect": "mysql"
+  }
+}
