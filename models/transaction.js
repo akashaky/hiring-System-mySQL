@@ -10,19 +10,19 @@ const transactionModel = dbConn.db.define('transactions', {
 		autoIncrement : true,
 		primaryKey : true
 	},
-	candidate: {
-        type : Sequelize.INTEGER(11),
-		allowNull : false,
-		references: {
-			model: 'users',
-			key: 'id'
-		}
-	},
 	appliedJob:{
 		type : Sequelize.INTEGER(11),
 		allowNull : false,
 		references: {
 			model: 'jobs',
+			key: 'id'
+		}
+	},
+	candidate: {
+        type : Sequelize.INTEGER(11),
+		allowNull : false,
+		references: {
+			model: 'users',
 			key: 'id'
 		}
 	},
@@ -43,7 +43,7 @@ const transactionModel = dbConn.db.define('transactions', {
 		}
     },
     skillAcceptedBy:{
-        type : Sequelize.INTEGER(11),
+        type : Sequelize.INTEGER,
 		allowNull: true,
 		references: {
 			model: 'users',
@@ -51,7 +51,7 @@ const transactionModel = dbConn.db.define('transactions', {
 		}
     },
     skillRejectedBy:{
-        type : Sequelize.INTEGER(11),
+        type : Sequelize.INTEGER,
 		allowNull: true,
 		references: {
 			model: 'users',
@@ -80,11 +80,11 @@ const transactionModel = dbConn.db.define('transactions', {
 module.exports = transactionModel;
 
 transactionModel.belongsTo(userModel, {foreignKey: 'candidate'});
-transactionModel.belongsTo(userModel, {foreignKey: 'applicationAcceptedBy'})
-transactionModel.belongsTo(userModel, {foreignKey: 'applicationRejectedBy'})
-transactionModel.belongsTo(userModel, {foreignKey: 'skillAcceptedBy'})
-transactionModel.belongsTo(userModel, {foreignKey: 'skillRejectedBy'})
-transactionModel.belongsTo(userModel, {foreignKey: ' hiredBy'})
-transactionModel.belongsTo(userModel, {foreignKey: ' rejectedBy'})
+// transactionModel.belongsTo(userModel, {foreignKey: 'applicationAcceptedBy'})
+// transactionModel.belongsTo(userModel, {foreignKey: 'applicationRejectedBy'})
+// transactionModel.belongsTo(userModel, {foreignKey: 'skillAcceptedBy'})
+// transactionModel.belongsTo(userModel, {foreignKey: 'skillRejectedBy'})
+// transactionModel.belongsTo(userModel, {foreignKey: 'hiredBy'})
+// transactionModel.belongsTo(userModel, {foreignKey: 'rejectedBy'})
 transactionModel.belongsTo(newJobModel, {foreignKey: 'appliedJob'});
 

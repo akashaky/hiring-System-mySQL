@@ -26,11 +26,26 @@ const checkCreateJob = Joi.object({
 const checkCreateTask = Joi.object({
     taskDescription: Joi.string().required()
 })
+const checkVerdict = Joi.object({
+    appStatus: Joi.number().min(0).max(5).required()
+})
+const checkAssignTask = Joi.object({
+    task : Joi.string().required()    
+})
+const checkSubmitTask = Joi.object({
+    myTask: Joi.string().required()
+})
+
+
 
 module.exports = {
     checkEmail,
     checkCreateUser,
     checkSignIn,
     checkCreateJob,
-    checkCreateTask
+    checkCreateTask,
+    checkVerdict,
+    checkAssignTask,
+    checkSubmitTask,
+
 }

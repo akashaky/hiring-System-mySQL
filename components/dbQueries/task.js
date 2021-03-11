@@ -24,7 +24,12 @@ async function allTasks (req, res) {
     })
     return allTask;
 }
+async function isTask(req, res){
+    let task = await taskModel.findByPk(req.body.task);
+    return task;  
+}
 
+module.exports.isTask = isTask;
 module.exports.allTasks = allTasks;
 module.exports.createTask = createTask;
 module.exports.isTaskExists = isTaskExists;

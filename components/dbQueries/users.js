@@ -27,6 +27,15 @@ async function createUser(req, res, userEmail,ePassword){
    })
    return user;
 }
+
+async function findUser(req, res){
+    let users = await userModel.findAll({
+        where: {userRole:req.query.userRole},
+        attributes: ['id','name','email', 'userRole']
+    });    
+    return users;
+}
+
 module.exports.findEmail = findEmail;
 module.exports.createUser = createUser;
 module.exports.findEmailWithOtp = findEmailWithOtp;

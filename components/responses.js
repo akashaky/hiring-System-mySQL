@@ -24,7 +24,6 @@ function forbidden(req, res){
         "message":"This request is forbidden to you"
     }})
 }
-
 module.exports.forbidden = forbidden;
 module.exports.invalidUser = invalidUser;
 module.exports.internalError = internalError;
