@@ -1,8 +1,6 @@
 const responses = require('../components/responses');
 const adminQueries = require('../components/dbQueries/admin');
 const userQueries = require('../components/dbQueries/users');
-const transactionModel = require('../models/transaction');
-const newJobModel = require('../models/job');
 
 module.exports.allJobs = async function(req, res){
     if(req.user.userRole != 1){responses.forbidden(req, res)}

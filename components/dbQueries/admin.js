@@ -22,8 +22,19 @@ async function allOpenings (req, res) {
 async function transactionDetails(req, res){
     
     let details = await transactionModel.findAll({
-        attributes:['id','applicationAcceptedBy', 'applicationRejectedBy', 'skillAcceptedBy', 'skillRejectedBy', 'hiredBy', 'rejectedBy'],
-        'include':[{'model':userModel, attributes:['id','name', 'email']},{'model':newJobModel, attributes:['jobDomain', 'jobPosition', 'reqExperience']}]            
+        attributes:['id'],
+        'include':[{'model':userModel,as:'applicant', attributes:['id','name', 'email']},
+        {'model':newJobModel, attributes:['jobDomain', 'jobPosition', 'reqExperience']},
+        {'model':userModel, as:'AppAcceptedBy',attributes:['id','name', 'email']},
+        {'model':userModel, as:'AppRejectedBy',attributes:['id','name', 'email']},
+        {'model':userModel, as:'SkillAcceptedBy',attributes:['id','name', 'email']},
+        {'model':userModel, as:'SkillRejectedBy',attributes:['id','name', 'email']},
+        {'model':userModel, as:'HiredBy',attributes:['id','name', 'email']},
+        {'model':userModel, as:'RejectedBy',attributes:['id','name', 'email']},
+
+
+        
+        ]            
     })
     return details;
 }

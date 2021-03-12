@@ -44,7 +44,7 @@ async function createTransaction(req, res) {
  async function myApplication(req, res){
      let app =  await applicationModel.findAll({
          where :{candidate:req.user.id},
-         attributes:['id','appliedJob','resume', 'taskGiven', 'taskSubmitted','appStatus'],
+         attributes:['id','appliedJob','resume', 'taskSubmitted','appStatus'],
          'include': [{'model':taskModel, attributes:['taskDescription']}] 
      });    
      return app; 

@@ -1,9 +1,6 @@
-const taskModel = require('../models/task');
 const _ = require('lodash')
 const responses= require('../components/responses');
 const Joi = require('@hapi/joi');
-const userModel = require('../models/user');
-const taskQueries = require('../components/dbQueries/task');
 const hmQueries = require('../components/dbQueries/hm');
 const hrQueries = require('../components/dbQueries/hr')
 const {checkCreateTask, checkAssignTask, checkVerdict}= require('../components/validationSchema')
@@ -12,14 +9,14 @@ module.exports.createTask = async function(req,res){
     if(req.user.userRole != 2) responses.forbidden(req, res);
     try{      
         const { error } = await checkCreateTask.validateAsync(req.body);
-        let anyTask = await taskQueries.isTaskExists(req, res);
+        let anyTask = await hmQueries.isTaskExists(req, res);
         if(anyTask != null){
             return res.status(400).json({status:{
                 "code":400,
                 "message":"This entity has already created"
             }}); 
         }      
-        let newTask = await taskQueries.createTask(req, res);     
+        let newTask = await hmQueries.createTask(req, res);     
         return res.status(200).json({"status":{
             "code": "200",
             "message": "Task Created"
@@ -33,7 +30,7 @@ module.exports.createTask = async function(req,res){
 module.exports.allTasks = async function(req, res){
     if(req.user.userRole != 2) responses.forbidden(req,res);
     try{
-        const allTask = await taskQueries.allTasks(req, res);            
+        const allTask = await hmQueries.allTasks(req, res);            
         return res.status(200).json({"status":{
             "code": "200",
             "message": "success"
@@ -66,7 +63,7 @@ module.exports.assignTask = async function (req, res) {
                 "message": "Task is already assigned as per your request"
             }}) 
         }
-        let isTaskExist = await taskQueries.isTask(req, res);
+        let isTaskExist = await hmQueries.isTask(req, res);
         if(isTaskExist == null){
             return res.status(400).json({"status":{
                 "code":400,

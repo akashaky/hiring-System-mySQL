@@ -25,7 +25,7 @@ async function giveTask(req, res) {
 async function taskCompleted(req, res){
     let apps = await applicationModel.findAll({
         where : {appStatus: 3},
-        attributes:['id','resume','appliedJob', 'candidate'],
+        attributes:['id','resume','appliedJob', 'candidate','taskSubmitted'],
         'include':[{'model':newJobModel, attributes:['jobDomain','jobPosition', 'reqExperience']},{'model':taskModel, attributes:['taskDescription']}]
     })   
     return apps; 
@@ -46,6 +46,39 @@ async function skillAccepted(req, res){
     )   
     return transaction; 
 }
+
+async function isTaskExists (req, res) {
+    let isTask = await taskModel.findOne({
+     where: {taskDescription: req.body.taskDescription}
+ });    
+ return isTask;        
+ }
+ 
+ async function createTask (req, res) {
+     let task = await taskModel.create({
+         createdBy: req.user.id,
+         taskDescription : req.body.taskDescription
+     })
+     return task;   
+ }
+ async function allTasks (req, res) {
+     let allTask =  await taskModel.findAll({
+         attributes: [
+             'id', 'taskDescription'],
+         'include' :[{'model' : userModel, attributes: [
+             'id', 'name', 'email']}]
+     })
+     return allTask;
+ }
+ async function isTask(req, res){
+     let task = await taskModel.findByPk(req.body.task);
+     return task;  
+ }
+ 
+ module.exports.isTask = isTask;
+ module.exports.allTasks = allTasks;
+ module.exports.createTask = createTask;
+ module.exports.isTaskExists = isTaskExists;
 
 module.exports.skillAccepted =skillAccepted;
 module.exports.skillRejected =skillRejected;

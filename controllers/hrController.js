@@ -1,13 +1,9 @@
 const _ = require('lodash');
 const Joi = require('@hapi/joi');
-const newJobModel = require('../models/job')
-const userModel = require('../models/user')
-const applicationModel = require('../models/apply');
 const jobQueries = require('../components/dbQueries/jobs');
 const hrQueries = require('../components/dbQueries/hr')
 const {checkCreateJob, checkVerdict} = require('../components/validationSchema');
 const responses = require('../components/responses');
-const transactionModel = require('../models/transaction');
 
 
 //creating new Job

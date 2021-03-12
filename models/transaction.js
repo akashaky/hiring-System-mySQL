@@ -79,12 +79,12 @@ const transactionModel = dbConn.db.define('transactions', {
 });
 module.exports = transactionModel;
 
-transactionModel.belongsTo(userModel, {foreignKey: 'candidate'});
-// transactionModel.belongsTo(userModel, {foreignKey: 'applicationAcceptedBy'})
-// transactionModel.belongsTo(userModel, {foreignKey: 'applicationRejectedBy'})
-// transactionModel.belongsTo(userModel, {foreignKey: 'skillAcceptedBy'})
-// transactionModel.belongsTo(userModel, {foreignKey: 'skillRejectedBy'})
-// transactionModel.belongsTo(userModel, {foreignKey: 'hiredBy'})
-// transactionModel.belongsTo(userModel, {foreignKey: 'rejectedBy'})
+transactionModel.belongsTo(userModel, {foreignKey: 'candidate', as:'applicant'});
+transactionModel.belongsTo(userModel, {foreignKey: 'applicationAcceptedBy', as: 'AppAcceptedBy'})
+ transactionModel.belongsTo(userModel, {foreignKey: 'applicationRejectedBy', as: 'AppRejectedBy'})
+ transactionModel.belongsTo(userModel, {foreignKey: 'skillAcceptedBy', as: 'SkillAcceptedBy'})
+  transactionModel.belongsTo(userModel, {foreignKey: 'skillRejectedBy', as: 'SkillRejectedBy'})
+  transactionModel.belongsTo(userModel, {foreignKey: 'hiredBy', as: 'HiredBy'})
+  transactionModel.belongsTo(userModel, {foreignKey: 'rejectedBy', as:'RejectedBy'})
 transactionModel.belongsTo(newJobModel, {foreignKey: 'appliedJob'});
 
