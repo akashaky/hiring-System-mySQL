@@ -2,8 +2,9 @@ const applicationModel = require('../../models/apply');
 const userModel = require('../../models/user')
 const newJobModel = require('../../models/job');
 const taskModel = require('../../models/task');
-const responses = require('../responses');
 const transactionModel = require('../../models/transaction');
+const commonResponses = require('../response/commonResponses');
+
 
 async function allApplications () {
     try{
@@ -14,7 +15,7 @@ async function allApplications () {
               
         });
         return allApps;
-    }catch(error){responses.internalError(res)}
+    }catch(error){return commonResponses.internalError(res)}
 }
 
 async function giveTask(toGiveTask) {
@@ -24,7 +25,7 @@ async function giveTask(toGiveTask) {
             {where: {id: toGiveTask.appId}}
         )    
         return editTask;
-    }catch(error){responses.internalError(res)}
+    }catch(error){return commonResponses.internalError(res)}
 }
 
 async function taskCompleted(){
@@ -35,7 +36,7 @@ async function taskCompleted(){
             'include':[{'model':newJobModel, attributes:['jobDomain','jobPosition', 'reqExperience']},{'model':taskModel, attributes:['taskDescription']}]
         })   
         return apps; 
-    }catch(error){responses.internalError(res)}
+    }catch(error){return commonResponses.internalError(res)}
 }
 
 async function skillRejected(skillDecision){
@@ -45,7 +46,7 @@ async function skillRejected(skillDecision){
             {where: {id: skillDecision.appId}}
         )
         return transaction;
-    }catch(error){responses.internalError(res)}
+    }catch(error){return commonResponses.internalError(res)}
 }
 
 async function skillAccepted(skillDecision){
@@ -55,7 +56,7 @@ async function skillAccepted(skillDecision){
             {where: {id: skillDecision.appId}}
         )   
         return transaction; 
-    }catch(error){responses.internalError(res)}
+    }catch(error){return commonResponses.internalError(res)}
 }
 
 async function isTaskExists (aboutTask) {
@@ -64,7 +65,7 @@ async function isTaskExists (aboutTask) {
             where: {taskDescription: aboutTask}
         });    
         return isTask;   
-    }catch(error){responses.internalError(res)}     
+    }catch(error){return commonResponses.internalError(res)}     
  }
  
  async function createTask (taskInfo){
@@ -74,7 +75,7 @@ try{
         taskDescription : taskInfo.taskDetail
     })
     return task;   
-}catch(error){responses.internalError(res)}
+}catch(error){return commonResponses.internalError(res)}
  }
 
  async function allTasks () {
@@ -86,13 +87,13 @@ try{
                 'id', 'name', 'email']}]
         })
         return allTask;
-     }catch(error){responses.internalError(res)}
+     }catch(error){return commonResponses.internalError(res)}
   }
  async function isTask(taskId){
      try{
         let task = await taskModel.findByPk(taskId);
         return task; 
-     }catch(error){responses.internalError(res)}
+     }catch(error){return commonResponses.internalError(res)}
  }
  
  module.exports.isTask = isTask;

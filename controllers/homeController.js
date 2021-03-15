@@ -4,5 +4,5 @@ module.exports.home = async function(req, res){
     try{
         let allJobs = await candidateQueries.allOpenings();
         return commonResponses.successWithData(res, allJobs) 
-    }catch(error){return responses.internalError(res)}
+    }catch(error){return commonResponses.internalError(res)}
 }

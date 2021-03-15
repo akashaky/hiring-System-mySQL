@@ -1,5 +1,4 @@
 const _ = require('lodash')
-const responses= require('../components/responses');
 const Joi = require('@hapi/joi');
 const hmQueries = require('../components/dbQueries/hm');
 const hrQueries = require('../components/dbQueries/hr')
@@ -95,7 +94,7 @@ module.exports.skillVerdict  = async function (req, res){
         editJobStatus= await hrQueries.isApplication(appId);  
         return hmResponses.edited(editJobStatus, res);
     }catch(error){
-        if(error.isJoi == true){return responses.joiError(error, res)}
+        if(error.isJoi == true){return commonResponses.joiError(error, res)}
         return commonResponses.internalError(res)
     }  
 }

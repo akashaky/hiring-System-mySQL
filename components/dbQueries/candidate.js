@@ -2,7 +2,7 @@ const newJobModel = require('../../models/job');
 const applicationModel = require('../../models/apply');
 const transactionModel = require('../../models/transaction');
 const taskModel = require('../../models/task');
-const responses = require('../responses');
+const commonResponses = require('../response/commonResponses');
 
 async function allOpenings(){
     try{
@@ -12,7 +12,7 @@ async function allOpenings(){
              ],
         })
         return allJob;
-    }catch(error){responses.internalError(res)}
+    }catch(error){return commonResponses.internalError(res)}
 }
 
 async function createApplication (req, res,userResume) {
@@ -24,7 +24,7 @@ async function createApplication (req, res,userResume) {
             resume: userResume  
         });
         return newApplication;
-    }catch(error){responses.internalError(res)}
+    }catch(error){return commonResponses.internalError(res)}
 }
 
 async function createTransaction(req, res) {
@@ -34,7 +34,7 @@ async function createTransaction(req, res) {
             appliedJob: req.params.job
         })
      return newTransaction;
-    }catch(error){responses.internalError(res)}
+    }catch(error){return commonResponses.internalError(res)}
 }
 
  async function isAlreadyApplied(uniqueJob) {
@@ -43,14 +43,14 @@ async function createTransaction(req, res) {
             where: {candidate: uniqueJob.candidateId , appliedJob: uniqueJob.appliedJobId}
         });    
         return isApplied; 
-     }catch(error){responses.internalError(res)}
+     }catch(error){return commonResponses.internalError(res)}
  }
 
  async function isValidJob(toJob){
      try{
         let isValid= await newJobModel.findByPk(toJob); 
         return isValid; 
-     }catch(error){responses.internalError(res)}
+     }catch(error){return commonResponses.internalError(res)}
  }
 
  async function myApplication(userId){
@@ -61,7 +61,7 @@ async function createTransaction(req, res) {
             'include': [{'model':taskModel, attributes:['taskDescription']}] 
         });    
         return app;
-     }catch(error){responses.internalError(res)}
+     }catch(error){return commonResponses.internalError(res)}
  }
  async function currentApplication(toJob){
      try{
@@ -71,7 +71,7 @@ async function createTransaction(req, res) {
             'include': [{'model':taskModel, attributes:['taskDescription']}] 
         });    
         return app;    
-     }catch(error){responses.internalError(res)}      
+     }catch(error){return commonResponses.internalError(res)}      
  }
  
  async function submitATask(submit){
@@ -81,7 +81,7 @@ async function createTransaction(req, res) {
             {where : {id: submit.toJob}}
         )
         return task;  
-     }catch(error){responses.internalError(res)}
+     }catch(error){return commonResponses.internalError(res)}
  }
 
  

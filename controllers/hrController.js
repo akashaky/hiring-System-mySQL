@@ -4,7 +4,7 @@ const hrQueries = require('../components/dbQueries/hr')
 const {checkCreateJob, checkVerdict} = require('./inputValidations/hrs');
 const hrResponses = require('../components/response/hrResponse');
 const commonResponses = require('../components/response/commonResponses');
-const responses = require('../components/responses');
+
 
 
 //creating new Job

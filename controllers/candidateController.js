@@ -1,4 +1,3 @@
-const responses = require('../components/responses');
 const applicationModel = require('../models/apply');
 const candidateQueries = require('../components/dbQueries/candidate');
 const multer = require('multer');

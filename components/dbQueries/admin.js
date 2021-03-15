@@ -1,6 +1,6 @@
 const newJobModel = require('../../models/job');
 const userModel = require('../../models/user');
-const responses = require('../responses');
+const commonResponses = require('../response/commonResponses')
 const transactionModel = require('../../models/transaction')
 
 
@@ -19,7 +19,7 @@ async function allOpenings () {
         }],     
         });
         return allJob;
-    }catch(error){responses.internalError(res)}
+    }catch(error){return commonResponses.internalError(res)}
 }
 
 async function transactionDetails(){
@@ -38,7 +38,7 @@ async function transactionDetails(){
             ]            
         })
         return details;
-    }catch(error){responses.internalError(res)}
+    }catch(error){return commonResponses.internalError(res)}
 }
 
 async function findUser(role){
@@ -48,7 +48,7 @@ async function findUser(role){
             attributes: ['id','name','email', 'userRole']
         });    
         return users;
-    }catch(error){responses.internalError(res)}
+    }catch(error){return commonResponses.internalError(res)}
 }
 
 module.exports.findUser = findUser;

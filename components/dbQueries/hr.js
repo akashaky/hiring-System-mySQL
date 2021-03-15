@@ -2,20 +2,20 @@ const newJobModel = require('../../models/job');
 const userModel = require('../../models/user');
 const applicationModel = require('../../models/apply');
 const transactionModel = require('../../models/transaction');
-const responses = require('../responses');
+const commonResponses = require('../response/commonResponses');
 
 
 async function allApplications () {
     try{
         let allApps = await applicationModel.findAll({
             'where': {'appStatus':1},
-            attributes:['appStatus','id','taskGiven', 'taskSubmitted'],
+            attributes:['appStatus','id','taskGiven', 'taskSubmitted', 'resume'],
             'include' :[{ 'model' : userModel, 'required' : true, attributes: ['id','name', 'email']},{
                 'model': newJobModel, 'required': true, attributes: ['id','jobDomain', 'jobPosition', 'jobId']
             }]     
         });
         return allApps;
-    }catch(error){responses.internalError(res)}
+    }catch(error){return commonResponses.internalError(res)}
 }
 
 async function allSkilledApplications () {    
@@ -27,7 +27,7 @@ async function allSkilledApplications () {
               
         });
         return allApps;
-    }catch(error){responses.internalError(res)}
+    }catch(error){return commonResponses.internalError(res)}
 }
 
 async function isJob(uniqueJob) {
@@ -36,7 +36,7 @@ async function isJob(uniqueJob) {
             where: {jobId: uniqueJob}
         });
         return job; 
-    }catch(error){responses.internalError(res)}
+    }catch(error){return commonResponses.internalError(res)}
 }
 
 async function createJob (req, res) {
@@ -50,7 +50,7 @@ async function createJob (req, res) {
             createdBy: req.user.id,                     
         });   
         return newJob;  
-    }catch(error){responses.internalError(res)}      
+    }catch(error){return commonResponses.internalError(res)}      
 }
 
 async function rejectApp(appDecision){
@@ -60,7 +60,7 @@ async function rejectApp(appDecision){
             {where: {id: appDecision.appId}}
         )
         return transaction;
-    }catch(error){responses.internalError(res)}
+    }catch(error){return commonResponses.internalError(res)}
 }
 
 async function acceptApp(appDecision){
@@ -70,7 +70,7 @@ async function acceptApp(appDecision){
             {where: {id: appDecision.appId}}
         )   
         return transaction; 
-    }catch(error){responses.internalError(res)}
+    }catch(error){return commonResponses.internalError(res)}
 }
 
 async function finalAccept(finalDecision){
@@ -80,7 +80,7 @@ async function finalAccept(finalDecision){
             {where: {id: finalDecision.appId}}
         )   
         return transaction; 
-    }catch(error){responses.internalError(res)}
+    }catch(error) {return commonResponses.internalError(res)}
 }
 async function finalReject(finalDecision){
     try{
@@ -89,14 +89,14 @@ async function finalReject(finalDecision){
             {where: {id: finalDecision.appId}}
         )   
         return transaction; 
-    }catch(error){responses.internalError(res)}
+    }catch(error){return commonResponses.internalError(res)}
 }
 //Below are the common queries between hm and hr
 async function isApplication(appId){ 
     try{
         let isApp = await applicationModel.findByPk(appId);
         return isApp;
-    }catch(error){responses.internalError(res)}
+    }catch(error){return commonResponses.internalError(res)}
 }
 
 async function updateApplication(newStatus){
@@ -106,7 +106,7 @@ async function updateApplication(newStatus){
             {where: {id: newStatus.appId}}  
         )  
         return app;
-    }catch(error){responses.internalError(res)}
+    }catch(error){return commonResponses.internalError(res)}
 }
 
 

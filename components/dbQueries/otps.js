@@ -1,12 +1,12 @@
 const otpModel = require('../../models/otp');
-const responses = require('../responses');
+const commonResponses = require('../response/commonResponses');
 
 async function sendOtp (inputEmail) {
     try{
         let userOtp = Math.floor(Math.random() * (999999 - 100000 + 1) + 100000);
         let otp = await otpModel.create({otp:userOtp, email: inputEmail});
         return;  
-    }catch(error){responses.internalError(res)}          
+    }catch(error){return commonResponses.internalError(res)}          
 }
 
 async function validateOtp(inputOtp){
@@ -15,7 +15,7 @@ async function validateOtp(inputOtp){
             where: {otp: inputOtp}
         });
         return isValid;
-    }catch(error){responses.internalError(res)}
+    }catch(error){return commonResponses.internalError(res)}
 }
 async function findOtp(req, res){
     try{
@@ -23,7 +23,7 @@ async function findOtp(req, res){
             where: {otp:req.body.Otp}
         })
         return isOtp;
-    }catch(erro){responses.internalError(res)}    
+    }catch(erro){return commonResponses.internalError(res)}    
 }
 module.exports.sendOtp = sendOtp;
 module.exports.validateOtp = validateOtp;

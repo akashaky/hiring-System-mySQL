@@ -1,5 +1,5 @@
 const userModel = require('../../models/user');
-const responses = require('../responses');
+const commonResponses = require('../response/commonResponses');
 
 async function findEmail(inputEmail) {
     try{
@@ -7,7 +7,7 @@ async function findEmail(inputEmail) {
             where: {email: inputEmail}
         })
         return user;  
-    } catch(error){return responses.internalError(res)}                    
+    } catch(error){return commonResponses.internalError(res)}                    
 }
 
 async function findEmailWithOtp(req,res,userEmail) {         
@@ -16,7 +16,7 @@ async function findEmailWithOtp(req,res,userEmail) {
             where: {email: userEmail.email}
         })
         return user;  
-    }catch(error){responses.internalError(res)}            
+    }catch(error){return commonResponses.internalError(res)}            
 }
 
 async function findUser(uniqueUser) {
@@ -25,7 +25,7 @@ async function findUser(uniqueUser) {
             where : {email:uniqueUser}
         })
         return user;  
-    }catch(error){responses.internalError(res)}                   
+    }catch(error){return commonResponses.internalError(res)}                   
 }
 
 async function createUser(userData){
@@ -37,7 +37,7 @@ async function createUser(userData){
             userRole: userData.userRole
            })
            return user;
-    }catch(error){responses.internalError(res)}
+    }catch(error){return commonResponses.internalError(res)}
 }
 
 module.exports.findEmail = findEmail;

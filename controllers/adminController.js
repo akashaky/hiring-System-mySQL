@@ -1,4 +1,3 @@
-const responses = require('../components/responses');
 const adminQueries = require('../components/dbQueries/admin');
 const userQueries = require('../components/dbQueries/users');
 const adminResponses = require('../components/response/adminResponse')
