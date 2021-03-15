@@ -48,6 +48,7 @@ module.exports.assignTask = async function (req, res) {
         const { error } = await checkAssignTask.validateAsync(req.body);
         let appId = req.params.id;
         var editedJobStatus = await hrQueries.isApplication(appId);
+        if(editedJobStatus==null){{ return commonResponses.notFound(res)}}
         if(editedJobStatus.taskGiven == req.body.task){return hmResponses.alredayAssigned(res)}
         if(editedJobStatus.appStatus != 2){return commonResponses.unauthorized(res)}
         let taskId = req.body.task;
@@ -77,6 +78,7 @@ module.exports.skillVerdict  = async function (req, res){
         const { error } = await checkVerdict.validateAsync(req.body);
         let appId=  req.params.id;
         let editJobStatus= await hrQueries.isApplication(appId);
+        if(editJobStatus == null){ return commonResponses.notFound(res)}
         if((req.body.appStatus != 4 &&  req.body.appStatus !=0) || editJobStatus.appStatus == 5 || editJobStatus.appStatus==0 || editJobStatus.appStatus==4 ||editJobStatus.appStatus != 3) {   
            return commonResponses.unauthorized(res);       
         }

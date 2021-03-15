@@ -51,6 +51,13 @@ function formAlreadyAssigned(res) {
     
 }
 
+function notFound(res){
+    return res.status(400).json({"status":{
+        "code": "400",
+        "message": "Application not found"
+    }}) 
+}
+
 
 module.exports.successWithData = successWithData;
 module.exports.forbidden = forbidden;
@@ -59,3 +66,4 @@ module.exports.internalError = internalError;
 module.exports.joiError = joiError
 module.exports.unauthorized = unauthorized;
 module.exports.formAlreadyAssigned = formAlreadyAssigned;
+module.exports.notFound = notFound;

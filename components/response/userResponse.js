@@ -26,7 +26,7 @@ function accountExists(res){
         "message":"Your account has already been created"
     }})    
 }
-function createdUser(res, user){
+function createdUser(res, user, token){
     return res.header('x-auth-token',token).status(200).json({
         "staus":{
             "code": 200,

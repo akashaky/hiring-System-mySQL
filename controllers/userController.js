@@ -49,7 +49,8 @@ module.exports.create = async function(req, res){
         let userData = {email: userOTP.email, name: req.body.name, userRole: req.body.userRole, password: ePassword}
         user = await userQueries.createUser(userData);            
         const token = jwt.sign({_id: user._id, userRole: user.userRole}, config.get('jwtPrivateKey'));
-        return userResponses.createdUser(res, user);  
+
+        return userResponses.createdUser(res, user, token);  
     }catch(error){
         if(error.isJoi == true){return commonResponses.joiError(error, res)}
         return commonResponses.internalError(res)
