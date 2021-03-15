@@ -2,77 +2,97 @@ const applicationModel = require('../../models/apply');
 const userModel = require('../../models/user')
 const newJobModel = require('../../models/job');
 const taskModel = require('../../models/task');
+const responses = require('../responses');
 const transactionModel = require('../../models/transaction');
 
-async function allApplications (req, res) {    
-    let allApps = await applicationModel.findAll({
-        'where': {'appStatus': 2},
-        attributes:['appStatus','id','taskGiven', 'taskSubmitted', 'candidate', 'appliedJob'],
-        'include':[{'model': userModel, attributes:['id','name','email']},{'model': newJobModel, attributes:['id','jobDomain', 'jobPosition','reqExperience']}]
-          
-    });
-    return allApps;
+async function allApplications () {
+    try{
+        let allApps = await applicationModel.findAll({
+            'where': {'appStatus': 2},
+            attributes:['appStatus','id','taskGiven', 'taskSubmitted', 'candidate', 'appliedJob', 'resume'],
+            'include':[{'model': userModel, attributes:['id','name','email']},{'model': newJobModel, attributes:['id','jobDomain', 'jobPosition','reqExperience']}]
+              
+        });
+        return allApps;
+    }catch(error){responses.internalError(res)}
 }
 
-async function giveTask(req, res) {
-    let editTask = await applicationModel.update(
-        {taskGiven:req.body.task},
-        {where: {id: req.params.id}}
-    )    
-    return editTask;
+async function giveTask(toGiveTask) {
+    try{
+        let editTask = await applicationModel.update(
+            {taskGiven:toGiveTask.taskId},
+            {where: {id: toGiveTask.appId}}
+        )    
+        return editTask;
+    }catch(error){responses.internalError(res)}
 }
 
-async function taskCompleted(req, res){
-    let apps = await applicationModel.findAll({
-        where : {appStatus: 3},
-        attributes:['id','resume','appliedJob', 'candidate','taskSubmitted'],
-        'include':[{'model':newJobModel, attributes:['jobDomain','jobPosition', 'reqExperience']},{'model':taskModel, attributes:['taskDescription']}]
-    })   
-    return apps; 
+async function taskCompleted(){
+    try{
+        let apps = await applicationModel.findAll({
+            where : {appStatus: 3},
+            attributes:['id','resume','appliedJob', 'candidate','taskSubmitted'],
+            'include':[{'model':newJobModel, attributes:['jobDomain','jobPosition', 'reqExperience']},{'model':taskModel, attributes:['taskDescription']}]
+        })   
+        return apps; 
+    }catch(error){responses.internalError(res)}
 }
 
-async function skillRejected(req, res){
-    let transaction = await transactionModel.update(
-        {skillAcceptedBy:null, skillRejectedBy: req.user.id},
-        {where: {id: req.params.id}}
-    )
-    return transaction;
+async function skillRejected(skillDecision){
+    try{
+        let transaction = await transactionModel.update(
+            {skillAcceptedBy:null, skillRejectedBy: skillDecision.userId},
+            {where: {id: skillDecision.appId}}
+        )
+        return transaction;
+    }catch(error){responses.internalError(res)}
 }
 
-async function skillAccepted(req, res){
-    let transaction = await transactionModel.update(
-        {skillAcceptedBy:req.user.id, skillRejectedBy: null},
-        {where: {id: req.params.id}}
-    )   
-    return transaction; 
+async function skillAccepted(skillDecision){
+    try{
+        let transaction = await transactionModel.update(
+            {skillAcceptedBy:skillDecision.userId, skillRejectedBy: null},
+            {where: {id: skillDecision.appId}}
+        )   
+        return transaction; 
+    }catch(error){responses.internalError(res)}
 }
 
-async function isTaskExists (req, res) {
-    let isTask = await taskModel.findOne({
-     where: {taskDescription: req.body.taskDescription}
- });    
- return isTask;        
+async function isTaskExists (aboutTask) {
+    try{
+        let isTask = await taskModel.findOne({
+            where: {taskDescription: aboutTask}
+        });    
+        return isTask;   
+    }catch(error){responses.internalError(res)}     
  }
  
- async function createTask (req, res) {
-     let task = await taskModel.create({
-         createdBy: req.user.id,
-         taskDescription : req.body.taskDescription
-     })
-     return task;   
+ async function createTask (taskInfo){
+try{
+    let task = await taskModel.create({
+        createdBy: taskInfo.userId,
+        taskDescription : taskInfo.taskDetail
+    })
+    return task;   
+}catch(error){responses.internalError(res)}
  }
- async function allTasks (req, res) {
-     let allTask =  await taskModel.findAll({
-         attributes: [
-             'id', 'taskDescription'],
-         'include' :[{'model' : userModel, attributes: [
-             'id', 'name', 'email']}]
-     })
-     return allTask;
- }
- async function isTask(req, res){
-     let task = await taskModel.findByPk(req.body.task);
-     return task;  
+
+ async function allTasks () {
+     try{
+        let allTask =  await taskModel.findAll({
+            attributes: [
+                'id', 'taskDescription'],
+            'include' :[{'model' : userModel, attributes: [
+                'id', 'name', 'email']}]
+        })
+        return allTask;
+     }catch(error){responses.internalError(res)}
+  }
+ async function isTask(taskId){
+     try{
+        let task = await taskModel.findByPk(taskId);
+        return task; 
+     }catch(error){responses.internalError(res)}
  }
  
  module.exports.isTask = isTask;

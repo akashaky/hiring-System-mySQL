@@ -2,68 +2,86 @@ const newJobModel = require('../../models/job');
 const applicationModel = require('../../models/apply');
 const transactionModel = require('../../models/transaction');
 const taskModel = require('../../models/task');
+const responses = require('../responses');
 
-async function allOpenings (req, res) {
-    let allJob = await newJobModel.findAll({
-        attributes: [
-            'id','jobDomain', 'jobPosition', 'jobDomain', 'jobDescription', 'jobId', 'reqExperience'
-         ],
-    })
-    return allJob;
+async function allOpenings(){
+    try{
+        let allJob = await newJobModel.findAll({
+            attributes: [
+                'id','jobDomain', 'jobPosition', 'jobDomain', 'jobDescription', 'jobId', 'reqExperience'
+             ],
+        })
+        return allJob;
+    }catch(error){responses.internalError(res)}
 }
 
 async function createApplication (req, res,userResume) {
-   let newApplication = await applicationModel.create({
-    candidate: req.user.id,
-    appliedJob: req.params.job,
-    appStatus: 1, 
-    resume: userResume  
-});
-return newApplication;
+    try{
+        let newApplication = await applicationModel.create({
+            candidate: req.user.id,
+            appliedJob: req.params.job,
+            appStatus: 1, 
+            resume: userResume  
+        });
+        return newApplication;
+    }catch(error){responses.internalError(res)}
 }
 
 async function createTransaction(req, res) {
-    let newTransaction = await transactionModel.create({
-        candidate: req.user.id,
-        appliedJob: req.params.job
-    })
- return newTransaction;
+    try{
+        let newTransaction = await transactionModel.create({
+            candidate: req.user.id,
+            appliedJob: req.params.job
+        })
+     return newTransaction;
+    }catch(error){responses.internalError(res)}
+}
+
+ async function isAlreadyApplied(uniqueJob) {
+     try{
+        let isApplied = await applicationModel.findOne({
+            where: {candidate: uniqueJob.candidateId , appliedJob: uniqueJob.appliedJobId}
+        });    
+        return isApplied; 
+     }catch(error){responses.internalError(res)}
  }
 
- async function isAlreadyApplied(req, res) {
-     let isApplied = await applicationModel.findOne({
-         where: {candidate: req.user.id, appliedJob: req.params.job}
-     });    
-     return isApplied; 
+ async function isValidJob(toJob){
+     try{
+        let isValid= await newJobModel.findByPk(toJob); 
+        return isValid; 
+     }catch(error){responses.internalError(res)}
  }
 
- async function isValidJob(req, res) {
-     let isValid= await newJobModel.findByPk(req.params.job); 
-     return isValid;    
+ async function myApplication(userId){
+     try{
+        let app =  await applicationModel.findAll({
+            where :{candidate:userId},
+            attributes:['id','appliedJob','resume', 'taskSubmitted','appStatus'],
+            'include': [{'model':taskModel, attributes:['taskDescription']}] 
+        });    
+        return app;
+     }catch(error){responses.internalError(res)}
  }
- async function myApplication(req, res){
-     let app =  await applicationModel.findAll({
-         where :{candidate:req.user.id},
-         attributes:['id','appliedJob','resume', 'taskSubmitted','appStatus'],
-         'include': [{'model':taskModel, attributes:['taskDescription']}] 
-     });    
-     return app; 
- }
- async function currentApplication(req, res){
-    let app =  await applicationModel.findOne({
-        where :{id: req.params.id},
-        attributes:['id','appliedJob','resume', 'taskGiven', 'taskSubmitted','appStatus'],
-        'include': [{'model':taskModel, attributes:['taskDescription']}] 
-    });    
-    return app;           
+ async function currentApplication(toJob){
+     try{
+        let app =  await applicationModel.findOne({
+            where :{id: toJob},
+            attributes:['id','appliedJob','resume', 'taskGiven', 'taskSubmitted','appStatus'],
+            'include': [{'model':taskModel, attributes:['taskDescription']}] 
+        });    
+        return app;    
+     }catch(error){responses.internalError(res)}      
  }
  
- async function submitATask(req, res){
-     let task = await applicationModel.update(
-         {taskSubmitted: req.body.myTask, appStatus: 3},
-         {where : {id: req.params.id}}
-     )
-     return task;     
+ async function submitATask(submit){
+     try{
+        let task = await applicationModel.update(
+            {taskSubmitted: submit.toSubmit, appStatus: 3},
+            {where : {id: submit.toJob}}
+        )
+        return task;  
+     }catch(error){responses.internalError(res)}
  }
 
  

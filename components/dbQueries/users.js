@@ -1,39 +1,43 @@
 const userModel = require('../../models/user');
+const responses = require('../responses');
 
-async function findEmail(req,res) {         
-    let user = await userModel.findOne({
-        where: {email: req.body.email}
-    })
-    return user;              
+async function findEmail(inputEmail) {
+    try{
+        let user = await userModel.findOne({
+            where: {email: inputEmail}
+        })
+        return user;  
+    } catch(error){return responses.internalError(res)}                    
 }
+
 async function findEmailWithOtp(req,res,userEmail) {         
-    let user = await userModel.findOne({
-        where: {email: userEmail.email}
-    })
-    return user;              
-}
-async function findUser(req,res) {       
-    let user = await userModel.findOne({
-        where : {email:req.user.email}
-    })
-    return user;              
-}
-async function createUser(req, res, userEmail,ePassword){
-   let user = await userModel.create({
-    name: req.body.name,
-    email: userEmail.email,
-    password: ePassword,
-    userRole: req.body.userRole
-   })
-   return user;
+    try{
+        let user = await userModel.findOne({
+            where: {email: userEmail.email}
+        })
+        return user;  
+    }catch(error){responses.internalError(res)}            
 }
 
-async function findUser(req, res){
-    let users = await userModel.findAll({
-        where: {userRole:req.query.userRole},
-        attributes: ['id','name','email', 'userRole']
-    });    
-    return users;
+async function findUser(uniqueUser) {
+    try{
+        let user = await userModel.findOne({
+            where : {email:uniqueUser}
+        })
+        return user;  
+    }catch(error){responses.internalError(res)}                   
+}
+
+async function createUser(userData){
+    try{
+        let user = await userModel.create({
+            name: userData.name,
+            email: userData.email,
+            password: userData.password,
+            userRole: userData.userRole
+           })
+           return user;
+    }catch(error){responses.internalError(res)}
 }
 
 module.exports.findEmail = findEmail;

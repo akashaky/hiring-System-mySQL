@@ -1,45 +1,31 @@
 const responses = require('../components/responses');
 const adminQueries = require('../components/dbQueries/admin');
 const userQueries = require('../components/dbQueries/users');
+const adminResponses = require('../components/response/adminResponse')
+const commonResponses = require('../components/response/commonResponses');
 
 module.exports.allJobs = async function(req, res){
-    if(req.user.userRole != 1){responses.forbidden(req, res)}
+    if(req.user.userRole != 1){return commonResponses.forbidden(res)}
     try{
-     let jobs = await adminQueries.allOpenings(req, res);
-     return res.status(200).json({"status":{
-         "code":200,
-         "message":"success",
-     },"data":jobs})
-     
-    }catch(err){res.send(err)}
- 
+     let jobs = await adminQueries.allOpenings();
+     return commonResponses.successWithData(res, jobs);     
+    }catch(err){return commonResponses.internalError(res)} 
  }
+
  module.exports.allHiringDetails = async function (req, res){
-    if(req.user.userRole != 1)responses.forbidden(req,res);
+    if(req.user.userRole != 1){return commonResponses.forbidden(res)}
     try{
-        let allApplicationDetails = await adminQueries.transactionDetails(req, res);
-        return res.status(200).json({status: {
-            "code": 200,
-            "message": "success"
-        }, "data" : allApplicationDetails})
-    }catch(error){internalError(res)}
+        let allApplicationDetails = await adminQueries.transactionDetails();
+        return commonResponses.successWithData(res, allApplicationDetails);
+    }catch(error){return commonResponses.internalError(res)} 
 }
 
 module.exports.filterUser = async function(req, res){
-    if(req.user.userRole !=1) responses.forbidden(res)
+    if(req.user.userRole !=1) {return commonResponses.forbidden(res)}
     let role = parseInt(req.query.userRole)
-    if(role > 4 || role < 1) return res.status(400).json({
-        "status":{
-            "code": 400,
-            "message": "The value of userRole should lie between 1 to 4"
-        }
-    })
-    
+    if(role > 4 || role < 1) return adminResponses.invalidUserRole(res);
    try{
-    let users = await userQueries.findUser(req, res);
-    return res.status(200).json({status: {
-        "code": 200,
-        "message": "success"
-    }, "data" : users})
-   }catch(error){responses.internalError(req,res)}
+    let users = await adminQueries.findUser(role);
+    return commonResponses.successWithData(res, users)
+   }catch(error){return commonResponses.internalError(res)} 
 }

@@ -1,150 +1,109 @@
 const _ = require('lodash');
 const Joi = require('@hapi/joi');
-const jobQueries = require('../components/dbQueries/jobs');
 const hrQueries = require('../components/dbQueries/hr')
-const {checkCreateJob, checkVerdict} = require('../components/validationSchema');
+const {checkCreateJob, checkVerdict} = require('./inputValidations/hrs');
+const hrResponses = require('../components/response/hrResponse');
+const commonResponses = require('../components/response/commonResponses');
 const responses = require('../components/responses');
 
 
 //creating new Job
 module.exports.createJob = async function(req, res){
-    if(req.user.userRole!=3) {responses.forbidden(req, res)}  
+    if(req.user.userRole!=3) {return commonResponses.forbidden(res)}  
     try{
         const { error } = await checkCreateJob.validateAsync(req.body); 
-        let job = await jobQueries.isJob(req, res);    
-        if(job !=null) {
-            return res.status(400).json({status:{
-                "code":400,
-                "message":"This entity has already created"
-            }});    
-        }          
-        let newJob = await jobQueries.createJob(req, res);        
-        return res.status(200).json({
-            "status":{
-                "code": 200,
-                "message": "Job Created"
-            },
-            "data": _.pick(newJob, ['id', 'jobDomain', 'jobPosition', 'reqExperience', 'jobD', 'jobId'])
-        })           
+        let uniqueJob = req.body.jobId;
+        let job = await hrQueries.isJob(uniqueJob)  
+        if(job !=null) {return hrResponses.isAlredayExists(res) }          
+        let newJob = await hrQueries.createJob(req, res);        
+        return hrResponses.createdJob(newJob, res); 
 
     }catch(error){
-        if(error.isJoi == true){responses.joiError(error, res)} 
-        responses.internalError(req,res);
+        if(error.isJoi == true){return commonResponses.joiError(error, res)}
+        return commonResponses.internalError(res)
     }
 }
 
 module.exports.getAppDetails = async function (req, res){
-    if(req.user.userRole != 3) responses.forbidden(req,res)   
+    if(req.user.userRole != 3) {return commonResponses.forbidden(res)}     
     try{
-        let allAppDetails = await hrQueries.allApplications(req, res);
-        return res.status(200).json({"status":{
-            "code": "200",
-            "message": "success"
-        }, data: allAppDetails}) 
-    }catch(error){ responses.internalError(res) }
+        let allAppDetails = await hrQueries.allApplications();
+        return commonResponses.successWithData(res, allAppDetails)
+    }catch(error){return commonResponses.internalError(res) }
 }
 
 module.exports.updateJobAppStatus = async function(req, res){
-    if(req.user.userRole != 3)responses.forbidden(req,res)
+    if(req.user.userRole != 3){return commonResponses.forbidden(res)}  
     try{
         const { error } = await checkVerdict.validateAsync(req.body);
-        const isValidApp = await hrQueries.isApplication(req,res);
-        if(isValidApp ==null){
-            return res.status(400).json({
-                "status":{
-                    "code":400,
-                    "message": "Application with this id not found"
-                }
-             })
-        }  
-        if((req.body.appStatus!= 2 && req.body.appStatus != 0)||  isValidApp.appStatus != 1){
-            return res.status(401).json({"status":{
-                "code":401,
-                "message": "Unauthorized"
-            }})        
+        let appId = req.params.id
+        const isValidApp = await hrQueries.isApplication(appId); //Common queries b/w hm and hr
+        if(isValidApp ==null){return hrResponses.invalidApp(res)}  
+        if((req.body.appStatus!= 2 && req.body.appStatus != 0)||  isValidApp.appStatus != 1){   
+            return commonResponses.unauthorized(res);
         }
         if(isValidApp.appStatus !=1 && isValidApp.appStatus !=0){
-            return res.status(401).json({"status":{
-                "code":401,
-                "message": "Unauthorized"
-            }})        
+            return commonResponses.unauthorized(res);
         }
         if(isValidApp.appStatus == req.body.appStatus){
-            return res.status(400).json({
-                "status":{
-                    "code":400,
-                    "message": "The appStatus is already set as per your request"
-                }
-            })
-        }        
-        let editedJobStatus = await hrQueries.updateApplication(req, res);  
+          return hrResponses.alreadySet(res);
+        }  
+        let newStatus= {appId: req.params.id, updatedStatus: req.body.appStatus}       
+        let editedJobStatus = await hrQueries.updateApplication(newStatus); 
+        let appDecision = {userId: req.user.id, appId: req.params.id}
         if(req.body.appStatus == 0){
-            let result = await hrQueries.rejectApp(req,res);
+            let result = await hrQueries.rejectApp(appDecision);
         }
         if(req.body.appStatus == 2){
-            let result = await hrQueries.acceptApp(req, res);
+            let result = await hrQueries.acceptApp(appDecision);
         }      
-        const res1 = await hrQueries.isApplication(req, res);
-        return res.status(200).json({
-            "status":{
-                "code": 200,
-                "message": "This job application is updated"
-            },
-            "data": _.pick(res1, ['id', 'appStatus', 'appliedJob'])
-        })
+        const res1 = await hrQueries.isApplication(appId); 
+        return hrResponses.isupdated(res1, res)
     }catch(error){
-        if(error.isJoi == true){{responses.joiError(error, res)}}
-        responses.internalError(req,res);
+        if(error.isJoi == true){return commonResponses.joiError(error, res)}
+        return commonResponses.internalError(res)
     }          
 }
 
 module.exports.skillApprovedApp = async function(req, res){
-    if(req.user.userRole != 3) responses.forbidden(req,res)
+    if(req.user.userRole != 3) {return commonResponses.forbidden(res)}  
     try{      
-        let skillApproved = await hrQueries.allSkilledApplications(req, res);
-        return res.status(200).json({"status":{
-            "code": "200",
-            "message": "Success"
-        }, data:skillApproved})  
-    }catch(error){responses.internalError(req,res)}
+        let skillApproved = await hrQueries.allSkilledApplications();
+        return commonResponses.successWithData(res, skillApproved);
+    }catch(error){return commonResponses.internalError(res)}
 }
 
 module.exports.finalVerdict = async function(req, res){
-    if(req.user.userRole != 3)forbidden(res)
+    if(req.user.userRole != 3) {return commonResponses.forbidden(res)}  
     try{
         const { error } = await checkVerdict.validateAsync(req.body);
-        let editedJobStatus = await hrQueries.isApplication(req, res);
-        if(req.body.appStatus != 5 && req.body.appStatus !=0){
-            return res.status(401).json({
-                "status":{
-                    "code":401,
-                    "message": "Unauthorized"
-                }
-            })
+        let appId = req.params.id
+        let editedJobStatus = await hrQueries.isApplication(appId);
+        if(editedJobStatus == null){
+            return hrResponses.appNotFound(res);        
         }
+
+        if(req.body.appStatus != 5 && req.body.appStatus !=0){
+            return commonResponses.unauthorized(res);
+        }
+
         if(editedJobStatus.appStatus == req.body.appStatus){
-            return res.status(400).json({"status":{
-                "code": "400",
-                "message": "Form is already assigned as per your request"
-            }})
-        }   
-    
+           return commonResponses.formAlreadyAssigned(res);
+        }  
+
+        let finalDecision = {userId: req.user.id, appId: req.params.id}
         if(req.body.appStatus == 0){
-            let result = await hrQueries.finalReject(req,res);
+            let result = await hrQueries.finalReject(finalDecision);
         }
         if(req.body.appStatus == 5){
-            let result = await hrQueries.finalAccept(req, res);
+            let result = await hrQueries.finalAccept(finalDecision);
         }   
-        let res1 = await hrQueries.updateApplication(req,res);
-        return res.status(200).json({"status":{
-            "code":200,
-            "message": "Application Updated"
-        }})
+        let newStatus= {appId: req.params.id, updatedStatus: req.body.appStatus} 
+        let res1 = await hrQueries.updateApplication(newStatus);
+        return hrResponses.updated(res);
 
     }catch(error){
-        if(error.isJoi == true){responses.joiError(error, res)}
-        responses.internalError(res)
+        if(error.isJoi == true){return commonResponses.joiError(error, res)}
+        return commonResponses.internalError(res)
         }
 }
-
-

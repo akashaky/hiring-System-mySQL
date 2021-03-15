@@ -6,46 +6,49 @@ const config = require('config')
 const userQueries = require('../components/dbQueries/users');
 const otpQueries = require('../components/dbQueries/otps');
 const responses = require('../components/responses');
-const {checkEmail, checkCreateUser, checkSignIn} = require('../components/validationSchema');
+const checkEmail = require('./inputValidations/email');
+const {checkCreateUser, checkSignIn} = require('./inputValidations/users');
 
 module.exports.generateOTP = async function(req, res){    
     try{    
         const { error } = await checkEmail.validateAsync(req.body);  
-        let users = await userQueries.findEmail(req, res)        
-        if(users != null){
+        let inputEmail = req.body.email;
+        let user = await userQueries.findEmail(inputEmail);       
+        if(user != null){
             return res.status(401).json({"status":{
                 "code":401,
                 "message":"User with this email already exists"
             }})
         }else{  
-            let otp = await otpQueries.sendOtp(req, res);
-            return res.status(200).json({"status":{
-                "code": 200,
+            let otp = await otpQueries.sendOtp(inputEmail);
+            return res.status(401).json({"status":{
+                "code": 401,
                 "message": "OTP sent"
             }})        
         }
        }catch(error){
-           if(error.isJoi == true){responses.joiError(error, res)} 
-           responses.internalError(req,res)
+        if(error.isJoi == true){return responses.joiError(error, res)}
+        return responses.internalError(res)
         }
 }
 
 module.exports.verifyOTP = async function(req, res,next){
     try{
-        let isValidOTP = await otpQueries.validateOtp(req, res)
+        let inputOtp = req.body.Otp;
+        let isValidOTP = await otpQueries.validateOtp(inputOtp)
         if(isValidOTP == null) return res.status(401).json({"status":{
             "code":200,
             "message": "Invalid OTP"
         }});
         next();
-    }catch(err){responses.internalError(req,res)}
+    }catch(err){return responses.internalError(res)}
 }
 
 module.exports.create = async function(req, res){
     try{     
         const { error } = await checkCreateUser.validateAsync(req.body);   
-        let userEmail =  await otpQueries.findOtp(req,res);
-        let user= await userQueries.findEmailWithOtp(req, res,userEmail);
+        let userOTP =  await otpQueries.findOtp(req,res);
+        let user= await userQueries.findEmailWithOtp(req, res,userOTP);
         if(user != null) return res.status(400).json({"status":{
             "code":400,
             "message":"Your account has already been created"
@@ -53,8 +56,9 @@ module.exports.create = async function(req, res){
         //encrptying Password
         const salt = await bcrypt.genSalt(10);
         ePassword = await bcrypt.hash(req.body.password, salt);
-        //creatingh user and token 
-        user = await userQueries.createUser(req, res,userEmail,ePassword);            
+        //creating user and token 
+        let userData = {email: userOTP.email, name: req.body.name, userRole: req.body.userRole, password: ePassword}
+        user = await userQueries.createUser(userData);            
         const token = jwt.sign({_id: user._id, userRole: user.userRole}, config.get('jwtPrivateKey'));
         return res.header('x-auth-token',token).status(200).json({
             "staus":{
@@ -64,16 +68,17 @@ module.exports.create = async function(req, res){
             data: _.pick(user, ['name', 'email'])
         });      
     }catch(error){
-        if(error.isJoi == true){responses.joiError(error, res)} 
-        responses.internalError(req,res)
+        if(error.isJoi == true){return responses.joiError(error, res)}
+        return responses.internalError(res)
      }
 }
 
 module.exports.signIn = async function(req, res){
     try{        
         const { error } = await checkSignIn.validateAsync(req.body); 
-        let user = await userQueries.findEmail(req, res);
-        if(user == null){responses.invalidUser(req,res)}
+        let inputEmail = req.body.email;
+        let user = await userQueries.findEmail(inputEmail);
+        if(user == null){return responses.invalidUser(res)}
         const ValidPassword = await bcrypt.compare(req.body.password, user.password);
         if(!ValidPassword){responses.invalidUser(req,res)}
         const token = jwt.sign({id: user.id, userRole: user.userRole,email:user.email}, config.get('jwtPrivateKey'));
@@ -82,8 +87,8 @@ module.exports.signIn = async function(req, res){
             "message":"Your JWT is"
         },data:token})
     }catch(error){
-        if(error.isJoi == true){responses.joiError(error, res)} 
-        responses.internalError(req,res)
+        if(error.isJoi == true){return responses.joiError(error, res)}
+        return responses.internalError(res)
      }
 }
 
@@ -98,15 +103,16 @@ module.exports.auth = function (req, res, next){
     req.user = decoded;   
     next();   
     } catch (err){
-        responses.internalError(req,res)
+        return responses.internalError(res)
     }
 }
 
 module.exports.profile = async function(req, res){
-    try{       
-       let user = await userQueries.findUser(req,res);
+    try{      
+       let uniqueUser = req.user.email; 
+       let user = await userQueries.findUser(uniqueUser);
        return res.send(_.pick(user, ['name', 'email', 'id']));
-    }catch(err){responses.internalError(req,res)}
+    }catch(err){return responses.internalError(res)}
  }
 
 
