@@ -5,6 +5,7 @@ const _ = require('lodash');
 const {checkSubmitTask}= require('./inputValidations/candidates');
 const candidateResponses = require('../components/response/candidateResponse');
 const commonResponses = require('../components/response/commonResponses')
+const hrQueries = require('../components/dbQueries/hr');
 
 module.exports.allLiveJobs = async function(req, res){ 
     if(req.user.userRole != 4) {return commonResponses.forbidden(res)}
@@ -52,6 +53,9 @@ module.exports.myapplications = async function(req, res){
 module.exports.submitTask = async function (req, res){
     if(req.user.userRole != 4) {return commonResponses.forbidden(res)}
     try{
+        let appId = req.params.id; 
+        var editedJobStatus = await hrQueries.isApplication(appId);
+        if(editedJobStatus==null){{ return commonResponses.notFound(res)}}
         const { error } = await checkSubmitTask.validateAsync(req.body); 
         let toJob = req.params.id;
         let toSubmitTask =  await candidateQueries.currentApplication(toJob);

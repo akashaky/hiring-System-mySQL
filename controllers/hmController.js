@@ -46,14 +46,14 @@ module.exports.assignTask = async function (req, res) {
     if(req.user.userRole != 2) {return commonResponses.forbidden(res)}
     try{
         const { error } = await checkAssignTask.validateAsync(req.body);
-        let appId = req.params.id;
+        let appId = req.params.id; 
         var editedJobStatus = await hrQueries.isApplication(appId);
         if(editedJobStatus==null){{ return commonResponses.notFound(res)}}
         if(editedJobStatus.taskGiven == req.body.task){return hmResponses.alredayAssigned(res)}
         if(editedJobStatus.appStatus != 2){return commonResponses.unauthorized(res)}
         let taskId = req.body.task;
         let isTaskExist = await hmQueries.isTask(taskId);
-        if(isTaskExist == null){return hmResponses.notATAsk(res)} 
+        if(isTaskExist == null){return hmResponses.notATask(res)} 
         let toGiveTask = {appId:req.params.id, taskId : req.body.task}
         const jobStatus = await hmQueries.giveTask(toGiveTask);
         return hmResponses.isUpdated(res);

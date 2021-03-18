@@ -15,7 +15,7 @@ function alredayAssigned(res){
     
 }
 
-function  notATAsk(res){
+function  notATask(res){
     return res.status(400).json({"status":{
         "code":400,
         "message": "Task not found"
@@ -41,6 +41,6 @@ function edited(editJobStatus, res){
 
 module.exports.alreadytask = alreadytask;
 module.exports.alredayAssigned =alredayAssigned;
-module.exports.notATAsk =notATAsk;
+module.exports.notATask =notATask;
 module.exports.isUpdated = isUpdated
 module.exports.edited =edited;

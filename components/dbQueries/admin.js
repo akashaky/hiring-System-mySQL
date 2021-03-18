@@ -18,6 +18,7 @@ async function allOpenings () {
             ],
         }],     
         });
+        
         return allJob;
     }catch(error){return commonResponses.internalError(res)}
 }
@@ -27,7 +28,7 @@ async function transactionDetails(){
         let details = await transactionModel.findAll({
             attributes:['id'],
             'include':[{'model':userModel,as:'applicant', attributes:['id','name', 'email']},
-            {'model':newJobModel, attributes:['jobDomain', 'jobPosition', 'reqExperience']},
+            {'model':newJobModel, attributes:['id','jobDomain', 'jobPosition', 'reqExperience']},
             {'model':userModel, as:'AppAcceptedBy',attributes:['id','name', 'email']},
             {'model':userModel, as:'AppRejectedBy',attributes:['id','name', 'email']},
             {'model':userModel, as:'SkillAcceptedBy',attributes:['id','name', 'email']},
