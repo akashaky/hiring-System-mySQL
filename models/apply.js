@@ -22,6 +22,10 @@ const applicationModel = dbConn.db.define('applications', {
 			key: 'id'
 		}
 	},
+	candiateEmail:{
+		type: Sequelize.STRING,
+		allowNull: true
+	},
 	appliedJob:{
 		type : Sequelize.INTEGER(11),
 		allowNull : false,

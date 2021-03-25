@@ -2,6 +2,7 @@ const newJobModel = require('../../models/job');
 const userModel = require('../../models/user');
 const commonResponses = require('../response/commonResponses')
 const transactionModel = require('../../models/transaction')
+const applicationModel = require('../../models/apply');
 
 
 async function allOpenings () {
@@ -42,6 +43,23 @@ async function transactionDetails(){
     }catch(error){return commonResponses.internalError(res)}
 }
 
+async function referedTransactionDetails(){
+    try{
+        let details = await transactionModel.findAll({
+            attributes:['id'],
+            'include':[{'model':userModel,as:'applicant', attributes:['id','name', 'email'], where: {'userRole': 3}},
+            {'model':newJobModel, attributes:['id','jobDomain', 'jobPosition', 'reqExperience']},
+            {'model':userModel, as:'SkillAcceptedBy',attributes:['id','name', 'email']},
+            {'model':userModel, as:'SkillRejectedBy',attributes:['id','name', 'email']},
+            {'model':userModel, as:'HiredBy',attributes:['id','name', 'email']},
+            {'model':userModel, as:'RejectedBy',attributes:['id','name', 'email']},
+    
+            ]            
+        })
+        return details;
+    }catch(error){return commonResponses.internalError(res)}
+}
+
 async function findUser(role){
     try{
         let users = await userModel.findAll({
@@ -55,3 +73,4 @@ async function findUser(role){
 module.exports.findUser = findUser;
 module.exports.transactionDetails=transactionDetails;
 module.exports.allOpenings = allOpenings;
+module.exports.referedTransactionDetails = referedTransactionDetails;

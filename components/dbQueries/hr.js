@@ -1,8 +1,10 @@
 const newJobModel = require('../../models/job');
+const taskModel = require('../../models/task')
 const userModel = require('../../models/user');
 const applicationModel = require('../../models/apply');
 const transactionModel = require('../../models/transaction');
 const commonResponses = require('../response/commonResponses');
+
 
 
 async function allApplications () {
@@ -22,7 +24,7 @@ async function allSkilledApplications () {
     try{
         let allApps = await applicationModel.findAll({
             'where': {'appStatus': 4},
-            attributes:['appStatus','id','taskGiven', 'taskSubmitted', 'candidate', 'appliedJob'],
+            attributes:['appStatus','id','taskGiven', 'taskSubmitted', 'candiateEmail', 'appliedJob'],
             'include':[{'model': userModel, attributes:['id','name','email']},{'model': newJobModel, attributes:['id','jobDomain', 'jobPosition','reqExperience']}]
               
         });
@@ -109,6 +111,21 @@ async function updateApplication(newStatus){
     }catch(error){return commonResponses.internalError(res)}
 }
 
+async function referedAppStatus(query){
+    try{
+       
+       let allApps = await applicationModel.findAll({
+           'where': {'candiateEmail': query},
+           attributes:['appStatus','id','taskSubmitted', 'candiateEmail', 'appliedJob', 'resume'],
+           'include':[{'model': taskModel, attributes:['taskDescription']},
+           {'model': userModel, attributes:['id','name','email'], where: {'userRole':3}},           
+           {'model': newJobModel, attributes:['id','jobDomain', 'jobPosition','reqExperience']}]
+             
+       });
+       return allApps;
+    }catch(error){return res.error}
+}
+
 
 module.exports.finalAccept = finalAccept;
 module.exports.finalReject = finalReject;
@@ -120,3 +137,4 @@ module.exports.rejectApp = rejectApp;
 module.exports.allSkilledApplications =allSkilledApplications
 module.exports.isJob = isJob
 module.exports.createJob = createJob;
+module.exports.referedAppStatus = referedAppStatus

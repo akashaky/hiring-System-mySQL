@@ -1,6 +1,7 @@
 const Sequelize = require('sequelize');
 const dbConn = require('../connection/sequelizeConnection');
 const userModel = require('./user');
+const applicationModel = require('./apply');
 
 const taskModel= dbConn.db.define('tasks', {
 	id : {

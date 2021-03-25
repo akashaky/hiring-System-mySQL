@@ -19,6 +19,14 @@ module.exports.allJobs = async function(req, res){
     }catch(error){return commonResponses.internalError(res)} 
 }
 
+module.exports.allReferedHiringDetails = async function (req, res){
+    if(req.user.userRole != 1){return commonResponses.forbidden(res)}
+    try{
+        let allApplicationDetails = await adminQueries.referedTransactionDetails();
+        return commonResponses.successWithData(res, allApplicationDetails);
+    }catch(error){return commonResponses.internalError(res)} 
+}
+
 module.exports.filterUser = async function(req, res){
     if(req.user.userRole !=1) {return commonResponses.forbidden(res)}
     let role = parseInt(req.query.userRole)

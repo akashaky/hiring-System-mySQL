@@ -100,3 +100,11 @@ module.exports.skillVerdict  = async function (req, res){
         return commonResponses.internalError(res)
     }  
 }
+
+
+module.exports.allReferedApplications = async function(req, res){
+    try{
+        let referredApplications = await hmQueries.referedApps();
+        return commonResponses.successWithData(res, referredApplications);
+    }catch(error){return commonResponses.internalError(res);}
+}

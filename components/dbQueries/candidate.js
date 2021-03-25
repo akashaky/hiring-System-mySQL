@@ -17,11 +17,15 @@ async function allOpenings(){
 
 async function createApplication (req, res,userResume) {
     try{
+        let currentAppStaus = 1;
+        let userEmail = null;
+        if(req.user.userRole == 3){currentAppStaus = 2, userEmail= req.body.email}
         let newApplication = await applicationModel.create({
             candidate: req.user.id,
             appliedJob: req.params.job,
-            appStatus: 1, 
-            resume: userResume  
+            appStatus: currentAppStaus, 
+            resume: userResume,  
+            candiateEmail: userEmail
         });
         return newApplication;
     }catch(error){return commonResponses.internalError(res)}
@@ -57,7 +61,7 @@ async function createTransaction(req, res) {
      try{
         let app =  await applicationModel.findAll({
             where :{candidate:userId},
-            attributes:['id','appliedJob','resume', 'taskSubmitted','appStatus'],
+            attributes:['id','appliedJob','resume', 'taskSubmitted','appStatus', 'candiateEmail'],
             'include': [{'model':taskModel, attributes:['taskDescription']}] 
         });    
         return app;

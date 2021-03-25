@@ -2,6 +2,7 @@ const _ = require('lodash');
 const Joi = require('@hapi/joi');
 const hrQueries = require('../components/dbQueries/hr')
 const {checkCreateJob, checkVerdict} = require('./inputValidations/hrs');
+const checkEmail = require('./inputValidations/email');
 const hrResponses = require('../components/response/hrResponse');
 const commonResponses = require('../components/response/commonResponses');
 
@@ -106,4 +107,17 @@ module.exports.finalVerdict = async function(req, res){
         if(error.isJoi == true){return commonResponses.joiError(error, res)}
         return commonResponses.internalError(res)
         }
+}
+
+module.exports.referedApplicationStatus = async function(req, res){
+    if(req.user.userRole != 3) {return commonResponses.forbidden(res)}  
+    try{
+        const { error } = await checkEmail.validateAsync(req.query); 
+        let query = req.query.email;
+        let apps = await hrQueries.referedAppStatus(query);
+        return commonResponses.successWithData(res, apps)
+    }catch(error){
+        if(error.isJoi == true){return commonResponses.joiError(error, res)}
+        return commonResponses.internalError(res)
+    }
 }

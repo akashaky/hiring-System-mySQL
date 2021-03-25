@@ -95,6 +95,18 @@ try{
         return task; 
      }catch(error){return commonResponses.internalError(res)}
  }
+
+ async function referedApps(){
+     try{
+        let allApps = await applicationModel.findAll({
+            'where': {'appStatus': 2, 'taskGiven': null},
+            attributes:['appStatus','id','taskGiven', 'taskSubmitted', 'candiateEmail', 'appliedJob', 'resume'],
+            'include':[{'model': userModel, attributes:['id','name','email'], where: {'userRole':3}},{'model': newJobModel, attributes:['id','jobDomain', 'jobPosition','reqExperience']}]
+              
+        });
+        return allApps;
+     }catch(error){return res.error}
+ }
  
  module.exports.isTask = isTask;
  module.exports.allTasks = allTasks;
@@ -106,3 +118,4 @@ module.exports.skillRejected =skillRejected;
 module.exports.giveTask = giveTask;
 module.exports.allApplications = allApplications;
 module.exports.taskCompleted = taskCompleted;
+module.exports.referedApps = referedApps;
